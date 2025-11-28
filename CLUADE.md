@@ -50,3 +50,27 @@ Codename:	noble
 TARGET_USERSPACE_LIB_DIR=nvidia
 TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
 INSTALL_TYPE=
+
+
+
+---
+
+## QuickCmd - 命令速查工具
+
+**简介**
+macOS 桌面悬浮窗口应用，快速查找和复制常用命令。
+
+**核心功能**
+- 桌面悬浮显示，半透明背景
+- 实时搜索过滤命令
+- 一键复制命令到剪贴板
+- 支持命令参数说明和示例输出
+- 点击展开详细信息
+- 拖动排序命令
+- 记住窗口位置和大小
+
+**技术栈**
+Swift + SwiftUI
+
+**平台**
+macOS
