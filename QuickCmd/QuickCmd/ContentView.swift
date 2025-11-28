@@ -22,88 +22,96 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索框
-            HStack(spacing: 8) {
+            // 搜索框 - 更紧凑
+            HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
-                    .font(.system(size: 14))
-                TextField("搜索命令...", text: $searchText)
+                    .font(.system(size: 11))
+                TextField("搜索", text: $searchText)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 13))
+                    .font(.system(size: 11))
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.secondary)
-                            .font(.system(size: 13))
+                            .font(.system(size: 11))
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(12)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.4))
             )
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
+            .padding(.horizontal, 12)
+            .padding(.top, 12)
             .padding(.bottom, 8)
 
-            // 命令列表
+            // 命令列表 - 更紧凑
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8, pinnedViews: [.sectionHeaders]) {
+                LazyVStack(alignment: .leading, spacing: 2, pinnedViews: [.sectionHeaders]) {
                     ForEach(groupedFilteredCommands.keys.sorted(), id: \.self) { category in
                         Section {
                             ForEach(groupedFilteredCommands[category] ?? []) { command in
                                 CommandRow(command: command)
                                     .environmentObject(store)
                             }
+                            .onMove { source, destination in
+                                store.moveCommands(in: category, from: source, to: destination)
+                            }
                         } header: {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 5) {
                                 Text(categoryIcon(for: category))
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 12))
                                 Text(category)
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(.primary)
                                 Spacer()
+                                Text("\(groupedFilteredCommands[category]?.count ?? 0)")
+                                    .font(.system(size: 9))
+                                    .foregroundColor(.secondary)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
                             .background(
-                                Color(NSColor.windowBackgroundColor).opacity(0.95)
-                                    .blur(radius: 10)
+                                VisualEffectBlur(material: .menu, blendingMode: .withinWindow)
                             )
                         }
                     }
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, 2)
             }
             .background(Color.clear)
 
-            // 底部按钮
-            HStack {
+            // 底部栏 - 更紧凑
+            HStack(spacing: 8) {
                 Button(action: { showingAddSheet = true }) {
-                    Label("添加命令", systemImage: "plus.circle.fill")
-                        .font(.system(size: 12))
+                    HStack(spacing: 4) {
+                        Image(systemName: "plus")
+                        Text("添加")
+                    }
+                    .font(.system(size: 10))
                 }
                 .buttonStyle(.borderless)
 
                 Spacer()
 
-                Text("\(filteredCommands.count) 条命令")
-                    .font(.system(size: 11))
+                Text("\(filteredCommands.count) 条")
+                    .font(.system(size: 9))
                     .foregroundColor(.secondary)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                Color(NSColor.controlBackgroundColor).opacity(0.3)
             )
         }
         .background(
             VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
         )
-        .frame(minWidth: 350, idealWidth: 450, maxWidth: 600, minHeight: 400, idealHeight: 600, maxHeight: 900)
+        .frame(minWidth: 300, idealWidth: 380, maxWidth: 600, minHeight: 350, idealHeight: 550, maxHeight: 900)
         .sheet(isPresented: $showingAddSheet) {
             AddCommandView()
                 .environmentObject(store)

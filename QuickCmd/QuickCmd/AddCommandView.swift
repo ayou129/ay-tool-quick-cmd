@@ -12,20 +12,27 @@ struct AddCommandView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var category = ""
-    @State private var shortcut = ""
-    @State private var description = ""
+    @State private var command = ""
+    @State private var briefDesc = ""
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             Text("添加新命令")
-                .font(.headline)
+                .font(.system(size: 13, weight: .semibold))
 
             Form {
-                TextField("分类（如：访达、iTerm2）", text: $category)
-                TextField("快捷键或命令", text: $shortcut)
-                TextField("描述", text: $description)
+                TextField("分类（如：Linux、Nano）", text: $category)
+                    .font(.system(size: 12))
+                TextField("命令或快捷键", text: $command)
+                    .font(.system(size: 12))
+                TextField("简短描述", text: $briefDesc)
+                    .font(.system(size: 12))
             }
             .textFieldStyle(.roundedBorder)
+
+            Text("提示：添加后可右键编辑以添加参数和示例")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
 
             HStack {
                 Button("取消") {
@@ -34,20 +41,20 @@ struct AddCommandView: View {
                 .keyboardShortcut(.escape)
 
                 Button("添加") {
-                    let command = Command(
+                    let newCommand = Command(
                         category: category.trimmingCharacters(in: .whitespaces),
-                        shortcut: shortcut.trimmingCharacters(in: .whitespaces),
-                        description: description.trimmingCharacters(in: .whitespaces)
+                        command: command.trimmingCharacters(in: .whitespaces),
+                        briefDesc: briefDesc.trimmingCharacters(in: .whitespaces)
                     )
-                    store.addCommand(command)
+                    store.addCommand(newCommand)
                     dismiss()
                 }
                 .keyboardShortcut(.return)
-                .disabled(category.isEmpty || shortcut.isEmpty || description.isEmpty)
+                .disabled(category.isEmpty || command.isEmpty || briefDesc.isEmpty)
             }
         }
         .padding(20)
-        .frame(width: 400)
+        .frame(width: 380)
     }
 }
 

@@ -60,6 +60,26 @@ class CommandStore: ObservableObject {
         commandsToDelete.forEach { deleteCommand($0) }
     }
 
+    // 在分类内移动命令
+    func moveCommands(in category: String, from source: IndexSet, to destination: Int) {
+        var categoryCommands = commands.filter { $0.category == category }
+        categoryCommands.move(fromOffsets: source, toOffset: destination)
+
+        // 移除该分类的所有命令
+        commands.removeAll { $0.category == category }
+
+        // 找到插入位置（保持其他分类的顺序）
+        let otherCategories = categories.filter { $0 != category }
+        if let firstOtherCommand = commands.first(where: { otherCategories.contains($0.category) }),
+           let insertIndex = commands.firstIndex(where: { $0.id == firstOtherCommand.id }) {
+            commands.insert(contentsOf: categoryCommands, at: insertIndex)
+        } else {
+            commands.append(contentsOf: categoryCommands)
+        }
+
+        saveCommands()
+    }
+
     // MARK: - 辅助方法
 
     // 按分类分组
