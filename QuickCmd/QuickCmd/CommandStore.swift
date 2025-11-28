@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 class CommandStore: ObservableObject {
     @Published var commands: [Command] = []
