@@ -120,7 +120,18 @@ Cmd+B
 # 在 Xcode 左侧 Products 中找到 QuickCmd.app
 # 右键 → Show in Finder → 复制到 /Applications
 ```
+### 开机自启
 
+~~~sh
+# 添加开机自启
+osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/QuickCmd.app", hidden:false}'
+
+# 查看当前登录项
+osascript -e 'tell application "System Events" to get the name of every login item'
+
+# 移除（如需要）
+osascript -e 'tell application "System Events" to delete login item "QuickCmd"'
+~~~
 ### 首次运行
 
 ```bash
