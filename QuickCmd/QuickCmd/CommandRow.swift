@@ -16,13 +16,14 @@ struct CommandRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(command.shortcut)
-                    .font(.system(.body, design: .monospaced))
-                    .fontWeight(.semibold)
+                    .font(.system(size: 13, design: .monospaced))
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
 
                 Text(command.description)
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .foregroundColor(.secondary)
             }
 
@@ -30,22 +31,36 @@ struct CommandRow: View {
 
             // 复制按钮
             Button(action: copyToClipboard) {
-                Image(systemName: copied ? "checkmark" : "doc.on.doc")
-                    .foregroundColor(copied ? .green : .blue)
+                Image(systemName: copied ? "checkmark.circle.fill" : "doc.on.doc.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(copied ? .green : .accentColor)
             }
             .buttonStyle(.plain)
             .help("复制到剪贴板")
         }
-        .padding(10)
-        .background(Color(NSColor.controlBackgroundColor))
-        .cornerRadius(6)
         .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(NSColor.controlBackgroundColor).opacity(0.6))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color.gray.opacity(0.1), lineWidth: 1)
+        )
+        .padding(.horizontal, 16)
         .contextMenu {
-            Button("复制", action: copyToClipboard)
-            Button("编辑", action: { showingEditSheet = true })
+            Button(action: copyToClipboard) {
+                Label("复制", systemImage: "doc.on.doc")
+            }
+            Button(action: { showingEditSheet = true }) {
+                Label("编辑", systemImage: "pencil")
+            }
             Divider()
-            Button("删除", role: .destructive) {
+            Button(role: .destructive) {
                 store.deleteCommand(command)
+            } label: {
+                Label("删除", systemImage: "trash")
             }
         }
         .sheet(isPresented: $showingEditSheet) {

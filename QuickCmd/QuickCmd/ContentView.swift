@@ -23,27 +23,34 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             // 搜索框
-            HStack {
+            HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
                 TextField("搜索命令...", text: $searchText)
                     .textFieldStyle(.plain)
+                    .font(.system(size: 13))
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 13))
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(10)
-            .background(Color(NSColor.controlBackgroundColor))
-
-            Divider()
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.5))
+            )
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 8)
 
             // 命令列表
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 12, pinnedViews: [.sectionHeaders]) {
+                LazyVStack(alignment: .leading, spacing: 8, pinnedViews: [.sectionHeaders]) {
                     ForEach(groupedFilteredCommands.keys.sorted(), id: \.self) { category in
                         Section {
                             ForEach(groupedFilteredCommands[category] ?? []) { command in
@@ -51,40 +58,52 @@ struct ContentView: View {
                                     .environmentObject(store)
                             }
                         } header: {
-                            HStack {
+                            HStack(spacing: 6) {
                                 Text(categoryIcon(for: category))
+                                    .font(.system(size: 14))
                                 Text(category)
-                                    .font(.headline)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.primary)
                                 Spacer()
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color(NSColor.windowBackgroundColor))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                Color(NSColor.windowBackgroundColor).opacity(0.95)
+                                    .blur(radius: 10)
+                            )
                         }
                     }
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 4)
             }
-
-            Divider()
+            .background(Color.clear)
 
             // 底部按钮
             HStack {
                 Button(action: { showingAddSheet = true }) {
-                    Label("添加命令", systemImage: "plus")
+                    Label("添加命令", systemImage: "plus.circle.fill")
+                        .font(.system(size: 12))
                 }
                 .buttonStyle(.borderless)
 
                 Spacer()
 
                 Text("\(filteredCommands.count) 条命令")
-                    .font(.caption)
+                    .font(.system(size: 11))
                     .foregroundColor(.secondary)
             }
-            .padding(10)
-            .background(Color(NSColor.controlBackgroundColor))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 0)
+                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.5))
+            )
         }
-        .frame(width: 450, height: 600)
+        .background(
+            VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
+        )
+        .frame(minWidth: 350, idealWidth: 450, maxWidth: 600, minHeight: 400, idealHeight: 600, maxHeight: 900)
         .sheet(isPresented: $showingAddSheet) {
             AddCommandView()
                 .environmentObject(store)
