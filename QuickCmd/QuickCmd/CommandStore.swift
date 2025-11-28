@@ -11,19 +11,20 @@ import SwiftUI
 
 class CommandStore: ObservableObject {
     @Published var commands: [Command] = []
+    var windowSettings: WindowSettings?
 
     private var configURL: URL {
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
-        return homeDir.appendingPathComponent(".quickcmd_commands.json")
+        return homeDir.appendingPathComponent(".quickcmd_settings.json")
     }
 
     init() {
-        loadCommands()
+        loadSettings()
     }
 
     // MARK: - 数据持久化
 
-    func loadCommands() {
+    func loadSettings() {
         print("📁 配置文件路径: \(configURL.path)")
 
         // 检查文件是否存在
@@ -32,6 +33,7 @@ class CommandStore: ObservableObject {
         } else {
             print("❌ 配置文件不存在")
             commands = []
+            windowSettings = nil
             return
         }
 
@@ -41,22 +43,31 @@ class CommandStore: ObservableObject {
             print("📄 文件大小: \(data.count) bytes")
 
             let decoder = JSONDecoder()
-            let decoded = try decoder.decode([Command].self, from: data)
-            commands = decoded
-            print("✅ 成功加载 \(decoded.count) 条命令")
+            let settings = try decoder.decode(AppSettings.self, from: data)
+            commands = settings.commands
+            windowSettings = settings.window
+            print("✅ 成功加载 \(settings.commands.count) 条命令")
         } catch {
             print("❌ 加载失败: \(error)")
             commands = []
+            windowSettings = nil
         }
     }
 
-    func saveCommands() {
+    func saveSettings() {
+        let settings = AppSettings(commands: commands, window: windowSettings)
+
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
-        if let encoded = try? encoder.encode(commands) {
+        if let encoded = try? encoder.encode(settings) {
             try? encoded.write(to: configURL)
         }
+    }
+
+    // 便捷方法：只保存命令（保持窗口设置不变）
+    func saveCommands() {
+        saveSettings()
     }
 
     // MARK: - CRUD 操作

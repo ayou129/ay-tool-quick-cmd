@@ -22,36 +22,44 @@ Swift + SwiftUI
 **平台**
 macOS
 
-
-
 ---
 
 ## 配置文件
 
 **存储路径**
 ```
-~/.quickcmd_commands.json
+~/.quickcmd_settings.json
 ```
 
 **文件格式**
 ```json
-[
-  {
-    "id": "uuid-string",
-    "category": "Linux",
-    "command": "wget",
-    "briefDesc": "下载文件",
-    "params": [
-      {"param": "-L", "desc": "接受跳转"},
-      {"param": "-O", "desc": "指定路径和文件名"}
-    ],
-    "details": "详细说明文字（可选）",
-    "example": "wget -L -O /path/file.tar https://example.com/file.tar"
+{
+  "commands": [
+    {
+      "id": "uuid-string",
+      "category": "Linux",
+      "command": "wget",
+      "briefDesc": "下载文件",
+      "params": [
+        {"param": "-L", "desc": "接受跳转"},
+        {"param": "-O", "desc": "指定路径和文件名"}
+      ],
+      "details": "详细说明文字（可选）",
+      "example": "wget -L -O /path/file.tar https://example.com/file.tar"
+    }
+  ],
+  "window": {
+    "x": 100,
+    "y": 100,
+    "width": 380,
+    "height": 550
   }
-]
+}
 ```
 
 **字段说明**
+
+*命令字段（commands 数组）：*
 - `id`: UUID，自动生成
 - `category`: 分类名称（如：Linux、Nano、访达）
 - `command`: 命令或快捷键
@@ -61,6 +69,67 @@ macOS
   - `desc`: 参数说明
 - `details`: 详细说明（可选）
 - `example`: 示例命令或输出（可选）
+
+*窗口设置（window 对象，可选）：*
+- `x`: 窗口X坐标
+- `y`: 窗口Y坐标
+- `width`: 窗口宽度
+- `height`: 窗口高度
+
+**配置文件特性**
+- 包含所有命令数据和窗口位置
+- 支持跨用户/跨设备同步设置
+- 移动窗口或调整大小会自动保存
+- 分享配置文件可完整恢复他人的设置
+
+---
+
+## 打包与分发
+
+### 方式1：Archive 打包（推荐）
+
+1. **在 Xcode 中打包**
+   ```
+   Product → Archive
+   等待编译完成...
+   ```
+
+2. **分发应用**
+   ```
+   Archive 完成后会自动打开 Organizer
+   选择刚才的 Archive → Distribute App
+   选择 "Copy App"
+   选择保存位置
+   ```
+
+3. **安装使用**
+   ```bash
+   # 将导出的 QuickCmd.app 复制到应用程序文件夹
+   cp -r QuickCmd.app /Applications/
+
+   # 从启动台或访达运行
+   open /Applications/QuickCmd.app
+   ```
+
+### 方式2：直接复制编译产物（快速测试）
+
+```bash
+# 在 Xcode 中编译
+Cmd+B
+
+# 在 Xcode 左侧 Products 中找到 QuickCmd.app
+# 右键 → Show in Finder → 复制到 /Applications
+```
+
+### 首次运行
+
+```bash
+# 复制示例配置
+cp ~/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
+
+# 运行应用
+open /Applications/QuickCmd.app
+```
 
 ---
 
@@ -73,7 +142,7 @@ macOS
 
 要求：
 1. 使用以下 JSON 结构
-2. id 字段使用随机 UUID
+2. id 字段使用随机 UUID（格式：A1B2C3D4-E5F6-7890-ABCD-EF1234567890）
 3. category 根据命令类型分类（如：Linux、Git、Docker、Vim 等）
 4. command 是核心命令或快捷键
 5. briefDesc 是一行简短描述
@@ -81,9 +150,9 @@ macOS
 7. 如果需要详细说明，添加 details 字段
 8. 如果有典型示例，添加 example 字段
 
-JSON 格式：
+JSON 格式（单个命令）：
 {
-  "id": "uuid",
+  "id": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
   "category": "分类",
   "command": "命令",
   "briefDesc": "描述",
@@ -94,6 +163,8 @@ JSON 格式：
 
 需要整理的命令：
 [在这里粘贴你的命令]
+
+请直接返回 JSON 数组，不要有其他文字。
 ```
 
 **示例输入**
@@ -106,7 +177,7 @@ docker rm $(docker ps -aq)  删除所有容器
 ```json
 [
   {
-    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "id": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
     "category": "Docker",
     "command": "docker ps",
     "briefDesc": "查看容器",
@@ -115,7 +186,7 @@ docker rm $(docker ps -aq)  删除所有容器
     ]
   },
   {
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "id": "B2C3D4E5-F6A7-8901-BCDE-F12345678901",
     "category": "Docker",
     "command": "docker rm",
     "briefDesc": "删除容器",
@@ -125,11 +196,38 @@ docker rm $(docker ps -aq)  删除所有容器
 ```
 
 **使用方法**
-1. 用 LLM 生成命令 JSON
-2. 复制生成的 JSON 数组
-3. 粘贴到 `~/.quickcmd_commands.json` 文件中（合并到现有数组）
-4. 重启 QuickCmd 应用即可看到新命令
+1. 用 LLM 生成命令 JSON 数组
+2. 打开配置文件：`code ~/.quickcmd_settings.json`
+3. 将生成的命令添加到 `commands` 数组中
+4. 保存文件
+5. 重启 QuickCmd 应用即可看到新命令
 
+---
 
-Product → Archive → Distribute App → Copy App
-导出 .app 文件到 /Applications
+## 常见操作
+
+**备份配置**
+```bash
+cp ~/.quickcmd_settings.json ~/backup/quickcmd_settings_$(date +%Y%m%d).json
+```
+
+**恢复配置**
+```bash
+cp ~/backup/quickcmd_settings_20250128.json ~/.quickcmd_settings.json
+```
+
+**分享配置给他人**
+```bash
+# 发送配置文件
+scp ~/.quickcmd_settings.json user@host:~/
+
+# 接收方使用
+cp ~/quickcmd_settings.json ~/.quickcmd_settings.json
+```
+
+**重置为默认**
+```bash
+rm ~/.quickcmd_settings.json
+# 重新打开应用会显示空列表，然后复制备份文件即可
+cp ~/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
+```
