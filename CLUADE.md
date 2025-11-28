@@ -125,7 +125,7 @@ Cmd+B
 
 ```bash
 # 复制示例配置
-cp ~/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
+cp 项目目录/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
 
 # 运行应用
 open /Applications/QuickCmd.app
@@ -229,5 +229,5 @@ cp ~/quickcmd_settings.json ~/.quickcmd_settings.json
 ```bash
 rm ~/.quickcmd_settings.json
 # 重新打开应用会显示空列表，然后复制备份文件即可
-cp ~/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
+cp 项目目录/.quickcmd_settings.json.bak ~/.quickcmd_settings.json
 ```

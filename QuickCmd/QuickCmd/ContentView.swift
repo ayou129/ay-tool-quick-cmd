@@ -103,6 +103,16 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderless)
 
+                Button(action: { store.loadSettings() }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.clockwise")
+                        Text("刷新")
+                    }
+                    .font(.system(size: 10))
+                }
+                .buttonStyle(.borderless)
+                .help("重新加载配置文件")
+
                 Spacer()
 
                 Text("\(filteredCommands.count) 条")

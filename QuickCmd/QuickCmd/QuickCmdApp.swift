@@ -12,17 +12,14 @@ struct QuickCmdApp: App {
     @StateObject var store = CommandStore()
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    init() {
-        // 在初始化时将 store 传递给 appDelegate
-        DispatchQueue.main.async {
-            appDelegate.store = store
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
+                .onAppear {
+                    // 在视图出现时传递 store
+                    appDelegate.store = store
+                }
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
