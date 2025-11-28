@@ -22,32 +22,39 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索框 - 更紧凑
-            HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 11))
-                TextField("搜索", text: $searchText)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 11))
-                if !searchText.isEmpty {
-                    Button(action: { searchText = "" }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 11))
+            // 顶部拖动区域 + 搜索框
+            VStack(spacing: 0) {
+                // 拖动区域
+                DragWindowArea()
+                    .frame(height: 8)
+
+                // 搜索框 - 更紧凑
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 11))
+                    TextField("搜索", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 11))
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 11))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(NSColor.controlBackgroundColor).opacity(0.4))
+                )
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.4))
-            )
-            .padding(.horizontal, 12)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.top, 4)
 
             // 命令列表 - 更紧凑
             ScrollView {
@@ -111,7 +118,7 @@ struct ContentView: View {
         .background(
             VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
         )
-        .frame(minWidth: 300, idealWidth: 380, maxWidth: 600, minHeight: 350, idealHeight: 550, maxHeight: 900)
+        .frame(minWidth: 300, idealWidth: 380, maxWidth: 600, minHeight: 350, idealHeight: 550)
         .sheet(isPresented: $showingAddSheet) {
             AddCommandView()
                 .environmentObject(store)

@@ -12,7 +12,10 @@ import SwiftUI
 class CommandStore: ObservableObject {
     @Published var commands: [Command] = []
 
-    private let saveKey = "SavedCommands"
+    private var configURL: URL {
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        return homeDir.appendingPathComponent(".quickcmd_commands.json")
+    }
 
     init() {
         loadCommands()
@@ -21,19 +24,38 @@ class CommandStore: ObservableObject {
     // MARK: - 数据持久化
 
     func loadCommands() {
-        if let data = UserDefaults.standard.data(forKey: saveKey),
-           let decoded = try? JSONDecoder().decode([Command].self, from: data) {
-            commands = decoded
+        print("📁 配置文件路径: \(configURL.path)")
+
+        // 检查文件是否存在
+        if FileManager.default.fileExists(atPath: configURL.path) {
+            print("✅ 配置文件存在")
         } else {
-            // 首次启动，加载示例数据
-            commands = Command.sampleData
-            saveCommands()
+            print("❌ 配置文件不存在")
+            commands = []
+            return
+        }
+
+        // 尝试从配置文件加载
+        do {
+            let data = try Data(contentsOf: configURL)
+            print("📄 文件大小: \(data.count) bytes")
+
+            let decoder = JSONDecoder()
+            let decoded = try decoder.decode([Command].self, from: data)
+            commands = decoded
+            print("✅ 成功加载 \(decoded.count) 条命令")
+        } catch {
+            print("❌ 加载失败: \(error)")
+            commands = []
         }
     }
 
     func saveCommands() {
-        if let encoded = try? JSONEncoder().encode(commands) {
-            UserDefaults.standard.set(encoded, forKey: saveKey)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        if let encoded = try? encoder.encode(commands) {
+            try? encoded.write(to: configURL)
         }
     }
 

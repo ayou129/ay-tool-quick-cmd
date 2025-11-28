@@ -1,58 +1,5 @@
 当前小工具主要功能是 提供cmd 快捷命令提示，以及其他(待完善，这里其实我有想过融入微信输入法，但是一直没找到合适的切入口)
 
-支持的平台有:
-- macos
-
-暂时梳理的技术栈:
-- Swift + SwiftUI
-
-我目前最迫切想要解决的是：
-1. 能够像便签一样 展示在 macos 桌面上，如果可以通过某些方式通过文字搜索出来相关命令 会更方便
-2. 如果有一个切入口 例如某个输入法 或者 如果能够开发一个类似 iterm2 的插件 也都可以，因为我在 macos 上几乎都是使用的这个终端工具
-
-目前我整理的命令如下：
-
-访达命令 
-●展示所有文件夹 Shift+Command+.
-Iterm2命令
-●快速打开终端 Command+O
-
-Nano 快捷键
-Ctrl+O 保存+Enter
-Ctrl+X 退出	Ctrl+K 剪切当前行
-Ctrl+U 粘贴
-Ctrl+A 行首
-Ctrl+E 行末尾
-Ctrl+/ 跳到指定行	Ctrl+Y 向上翻页
-Ctrl+V 向下翻页
-Ctrl+W 搜索文本	Ctrl+Option+6 开启 Mark 标记起点
-Ctrl+V+Ctrl+K 删除
-linux 命令
-wget -L 接受跳转 -O指定路径和文件名tree -d 只显示文件夹      -L 2 只显示2层
-     -h 显示文件大小
-nvidia-smi
-lsb_release -a
-cat /etc/nv_tegra_release
-nproc 查看核心数
-uname -m [aarch64=arm64]sudo shutdown 关机
-
-L4T_VERSION=38.4.0  JETPACK_VERSION=7.1  CUDA_VERSION=13.0
-# lsb_release -a
-No LSB modules are available.
-Distributor ID:	Ubuntu
-Description:	Ubuntu 24.04.3 LTS
-Release:	24.04
-Codename:	noble
-
-# cat /etc/nv_tegra_release
-# R38 (release), REVISION: 2.0, GCID: 41844464, BOARD: generic, EABI: aarch64, DATE: Fri Aug 22 00:55:42 UTC 2025
-# KERNEL_VARIANT: oot
-TARGET_USERSPACE_LIB_DIR=nvidia
-TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia
-INSTALL_TYPE=
-
-
-
 ---
 
 ## QuickCmd - 命令速查工具
@@ -74,3 +21,115 @@ Swift + SwiftUI
 
 **平台**
 macOS
+
+
+
+---
+
+## 配置文件
+
+**存储路径**
+```
+~/.quickcmd_commands.json
+```
+
+**文件格式**
+```json
+[
+  {
+    "id": "uuid-string",
+    "category": "Linux",
+    "command": "wget",
+    "briefDesc": "下载文件",
+    "params": [
+      {"param": "-L", "desc": "接受跳转"},
+      {"param": "-O", "desc": "指定路径和文件名"}
+    ],
+    "details": "详细说明文字（可选）",
+    "example": "wget -L -O /path/file.tar https://example.com/file.tar"
+  }
+]
+```
+
+**字段说明**
+- `id`: UUID，自动生成
+- `category`: 分类名称（如：Linux、Nano、访达）
+- `command`: 命令或快捷键
+- `briefDesc`: 简短描述（一行）
+- `params`: 参数列表（可选）
+  - `param`: 参数名
+  - `desc`: 参数说明
+- `details`: 详细说明（可选）
+- `example`: 示例命令或输出（可选）
+
+---
+
+## LLM 生成命令提示词
+
+使用以下提示词让 LLM 生成符合格式的命令数据：
+
+```
+请将以下命令整理为 JSON 格式，用于 QuickCmd 工具。
+
+要求：
+1. 使用以下 JSON 结构
+2. id 字段使用随机 UUID
+3. category 根据命令类型分类（如：Linux、Git、Docker、Vim 等）
+4. command 是核心命令或快捷键
+5. briefDesc 是一行简短描述
+6. 如果命令有参数，添加 params 数组，列出每个参数及说明
+7. 如果需要详细说明，添加 details 字段
+8. 如果有典型示例，添加 example 字段
+
+JSON 格式：
+{
+  "id": "uuid",
+  "category": "分类",
+  "command": "命令",
+  "briefDesc": "描述",
+  "params": [{"param": "参数", "desc": "说明"}],
+  "details": "详细说明",
+  "example": "示例"
+}
+
+需要整理的命令：
+[在这里粘贴你的命令]
+```
+
+**示例输入**
+```
+docker ps -a  查看所有容器
+docker rm $(docker ps -aq)  删除所有容器
+```
+
+**示例输出**
+```json
+[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "category": "Docker",
+    "command": "docker ps",
+    "briefDesc": "查看容器",
+    "params": [
+      {"param": "-a", "desc": "显示所有容器（包括停止的）"}
+    ]
+  },
+  {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "category": "Docker",
+    "command": "docker rm",
+    "briefDesc": "删除容器",
+    "example": "docker rm $(docker ps -aq)  # 删除所有容器"
+  }
+]
+```
+
+**使用方法**
+1. 用 LLM 生成命令 JSON
+2. 复制生成的 JSON 数组
+3. 粘贴到 `~/.quickcmd_commands.json` 文件中（合并到现有数组）
+4. 重启 QuickCmd 应用即可看到新命令
+
+
+Product → Archive → Distribute App → Copy App
+导出 .app 文件到 /Applications

@@ -34,7 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.styleMask = [.titled, .closable, .resizable, .fullSizeContentView]
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
-            window.isMovableByWindowBackground = true
+            window.isMovableByWindowBackground = false  // 禁用背景拖动，避免与命令拖动冲突
 
             // 半透明背景
             window.backgroundColor = NSColor.clear
